@@ -10,4 +10,8 @@ A try on replacing the old animedoro website
 
 # Co dalej?
 
-nie wiem kurczaki
+-ustalanie długości (minut) przy pomocy strzałek góra/dół?
+-ogółem całe menu przy pomocy strzałek i wszystko
+-zrobić jakieś podświetlenie przycisków proste!!!
+-czy w menu potrzebne jest wyjście? skoro klikamy na x po prostu zwykle
+-zrobić kilka faz (okienek?), np. if fase == 0, wtedy menu, 1, wtedy nauka itp.
