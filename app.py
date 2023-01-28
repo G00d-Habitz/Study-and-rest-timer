@@ -13,7 +13,7 @@ pygame.init()
 pygame.display.set_caption("Przerwa i nauka")
 screen = pygame.display.set_mode((640, 360))
 clock = pygame.time.Clock()
-app_phase = "Timer" #musi być chyba 5 faz: menu, ustawienia, instrukcje, timer i podsumowanie
+app_phase = "Menu" #musi być chyba 5 faz: menu, ustawienia, instrukcje, timer i podsumowanie
 
 # Fonts
 main_font = pygame.font.Font("./fonts/orange juice 2.0.ttf", 69)
@@ -30,8 +30,16 @@ while True:
         if event.type == pygame.QUIT:
             pygame.quit()
             exit()
+        
+        if event.type == pygame.KEYDOWN and app_phase == "Menu":
+            if event.key == pygame.K_DOWN:
+                user_position_menu += 1
+            elif event.key == pygame.K_UP:
+                user_position_menu -= 1
 
-    if app_phase == "Menu":
+    screen.fill((94,129,162))
+    if app_phase == "Menu":#Może zmienić to tak, żeby wcześniej wyrenderować black i kolor
+        # I potem tylko wybierać które się rysuje, żeby się nie renderowało co klatkę od nowa
         if user_position_menu == 0:
             menu_start = smaller_main_font.render("-Zacznij naukę", True, "#191970" )
             menu_ustaw = smaller_main_font.render("-Ustawienia", True, "Black" )
@@ -45,10 +53,10 @@ while True:
             menu_ustaw = smaller_main_font.render("-Ustawienia", True, "Black" )
             menu_instr = smaller_main_font.render("-Instrukcje", True, "#191970" )
         
-        user_position_menu +=1
         if user_position_menu > 2:
             user_position_menu = 0
-        screen.fill((94,129,162))
+        if user_position_menu < 0:
+            user_position_menu = 2
         screen.blit(app_name,app_name_rect)
         screen.blit(menu_start,(75,138))
         screen.blit(menu_ustaw,(75,188))
