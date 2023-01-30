@@ -24,8 +24,8 @@ menu_instr1 = smaller_main_font.render("-Instrukcje", True, "#191970" )
 user_position_menu = 0
 # Timer screen
 what_timer = 0
-session_time = 5
-break_time = 3
+session_time = 2400
+break_time = 1200
 sessions = 0
 breaks = 0
 press_space = smaller_main_font.render("Wciśnij: \"p\" = pauza, \"spacja\" = kolejna tura", True, "Black")
@@ -36,6 +36,19 @@ break_text = main_font.render("Przerwa", True, "Black")
 break_text_rect = break_text.get_rect(center = (320, 50))
 #Pause screen
 start_back = main_font.render("\"s\" by wznowić", True, "Black")
+# Instructions
+instruction = smaller_main_font.render("Domyślny czas to zawsze 40/20 minut", True, "Black")
+instruction1 = smaller_main_font.render("Zmiana w ustawieniach od razu się zapisuje", True, "Black")
+instruction2 = smaller_main_font.render("Po rozpoczęciu nie można wrócić do menu", True, "Black")
+instruction3 = smaller_main_font.render("Sesja =>Przerwa: gdy zegar jest czerwony", True, "Black")
+instruction4 = smaller_main_font.render("Powrót do menu: \"m\"", True, "Black")
+# Settings
+what_to_change = 0
+how_to_change = smaller_main_font.render("Nawiguj strzałkami!", True, "Black")
+how_to_change_rect = how_to_change.get_rect(center = (320, 25))
+#ringtones
+ringtone = pygame.mixer.Sound("./ringtones/nokia.mp3")
+
 
 while True:
     # user input eventloop
@@ -52,21 +65,43 @@ while True:
             elif event.key == pygame.K_RETURN and user_position_menu == 0:
                 app_phase = "Timer"
                 starttime = timeit.default_timer()
-        
-        if event.type == pygame.KEYDOWN and app_phase == "Timer":
+            elif event.key == pygame.K_RETURN and user_position_menu == 1:
+                app_phase = "Settings"
+            elif event.key == pygame.K_RETURN and user_position_menu == 2:
+                app_phase = "Instructions"
+        elif event.type == pygame.KEYDOWN and app_phase == "Timer":
             if event.key == pygame.K_p:
                 app_phase = "Pause"
-            if event.key == pygame.K_SPACE and timedown < 0:
+            elif event.key == pygame.K_SPACE and timedown < 0:
                 what_timer +=1
                 if what_timer % 2 == 1:
                     sessions +=1
                 else:
                     breaks += 1  
                 starttime = timeit.default_timer()
-
-        if event.type == pygame.KEYDOWN and app_phase == "Pause":
+        elif event.type == pygame.KEYDOWN and app_phase == "Pause":
             if event.key == pygame.K_s:
                 app_phase = "Timer"
+        elif event.type == pygame.KEYDOWN and app_phase == "Instructions":
+            if event.key == pygame.K_m:
+                app_phase = "Menu"
+        elif event.type == pygame.KEYDOWN and app_phase == "Settings":
+            if event.key == pygame.K_m:
+                app_phase = "Menu"
+            elif event.key == pygame.K_DOWN:
+                what_to_change += 1
+            elif event.key == pygame.K_UP:
+                what_to_change -= 1
+            elif event.key == pygame.K_RIGHT:
+                if what_to_change % 2 == 0:
+                    session_time +=60
+                else:
+                    break_time +=60
+            elif event.key == pygame.K_LEFT:
+                if what_to_change % 2 == 0:
+                    session_time -=60
+                else:
+                    break_time -=60
 
     screen.fill((94,129,162))
     if app_phase == "Menu":
@@ -87,9 +122,25 @@ while True:
         session_counter = smaller_main_font.render(f"Sesje: {sessions}   Przerwy: {breaks}", True, "Black")
         screen.blit(session_counter, session_counter.get_rect(center = (320, 250)))
         screen.blit(press_space, press_space_rect)
+        if 0 > timedown > -0.2: ringtone.play(loops = 1)
     elif app_phase == "Pause":
         screen.blit(start_back, app_name_rect)
         starttime = timeit.default_timer()
         session_time = timedown
+    elif app_phase == "Settings":
+        set_session = main_font.render(f"Czas sesji: {session_time/60}", True, "Black")
+        set_break = main_font.render(f"Czas przerwy: {break_time/60}", True, "Black")
+        set_session_color = main_font.render(f"Czas sesji: {session_time/60}", True, "#191970")
+        set_break_color = main_font.render(f"Czas przerwy: {break_time/60}", True, "#191970")
+        screen.blit(how_to_change,how_to_change_rect)
+        screen.blit(set_session_color if what_to_change % 2 == 0 else set_session, (10, 80))
+        screen.blit(set_break_color if what_to_change % 2 == 1 else set_break,(10,180))
+        screen.blit(instruction4, (175,300))
+    elif app_phase == "Instructions":
+        screen.blit(instruction, (10,50))
+        screen.blit(instruction1, (10,100))
+        screen.blit(instruction2, (10,150))
+        screen.blit(instruction3, (10,200))
+        screen.blit(instruction4, (175,300))
     pygame.display.update()
     clock.tick(5)
