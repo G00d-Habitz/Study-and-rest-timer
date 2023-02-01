@@ -24,8 +24,10 @@ menu_instr1 = smaller_main_font.render("-Instrukcje", True, "#191970" )
 user_position_menu = 0
 # Timer screen
 what_timer = 0
-session_time = 2400
-break_time = 1200
+set_session_time = 2400
+set_break_time = 1200
+session_time = set_session_time
+break_time = set_break_time
 sessions = 0
 breaks = 0
 press_space = smaller_main_font.render("Wciśnij: \"p\" = pauza, \"spacja\" = kolejna tura", True, "Black")
@@ -64,6 +66,8 @@ while True:
                 user_position_menu -= 1
             elif event.key == pygame.K_RETURN and user_position_menu == 0:
                 app_phase = "Timer"
+                session_time = set_session_time
+                break_time = set_break_time
                 starttime = timeit.default_timer()
             elif event.key == pygame.K_RETURN and user_position_menu == 1:
                 app_phase = "Settings"
@@ -77,7 +81,9 @@ while True:
                 if what_timer % 2 == 1:
                     sessions +=1
                 else:
-                    breaks += 1  
+                    breaks += 1
+                session_time = set_session_time
+                break_time = set_break_time 
                 starttime = timeit.default_timer()
         elif event.type == pygame.KEYDOWN and app_phase == "Pause":
             if event.key == pygame.K_s:
@@ -94,14 +100,14 @@ while True:
                 what_to_change -= 1
             elif event.key == pygame.K_RIGHT:
                 if what_to_change % 2 == 0:
-                    session_time +=60
+                    set_session_time +=60
                 else:
-                    break_time +=60
+                    set_break_time +=60
             elif event.key == pygame.K_LEFT:
                 if what_to_change % 2 == 0:
-                    session_time -=60
+                    set_session_time -=60
                 else:
-                    break_time -=60
+                    set_break_time -=60
 
     screen.fill((94,129,162))
     if app_phase == "Menu":
@@ -126,12 +132,15 @@ while True:
     elif app_phase == "Pause":
         screen.blit(start_back, app_name_rect)
         starttime = timeit.default_timer()
-        session_time = timedown
+        if what_timer % 2 == 0:
+            session_time = timedown
+        else:
+            break_time = timedown
     elif app_phase == "Settings":
-        set_session = main_font.render(f"Czas sesji: {session_time/60}", True, "Black")
-        set_break = main_font.render(f"Czas przerwy: {break_time/60}", True, "Black")
-        set_session_color = main_font.render(f"Czas sesji: {session_time/60}", True, "#191970")
-        set_break_color = main_font.render(f"Czas przerwy: {break_time/60}", True, "#191970")
+        set_session = main_font.render(f"Czas sesji: {set_session_time/60}", True, "Black")
+        set_break = main_font.render(f"Czas przerwy: {set_break_time/60}", True, "Black")
+        set_session_color = main_font.render(f"Czas sesji: {set_session_time/60}", True, "#191970")
+        set_break_color = main_font.render(f"Czas przerwy: {set_break_time/60}", True, "#191970")
         screen.blit(how_to_change,how_to_change_rect)
         screen.blit(set_session_color if what_to_change % 2 == 0 else set_session, (10, 80))
         screen.blit(set_break_color if what_to_change % 2 == 1 else set_break,(10,180))
