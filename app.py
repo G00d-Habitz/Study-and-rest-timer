@@ -38,6 +38,8 @@ break_text = main_font.render("Przerwa", True, "Black")
 break_text_rect = break_text.get_rect(center = (320, 50))
 #Pause screen
 start_back = main_font.render("\"s\" by wznowić", True, "Black")
+finish_it = main_font.render("\"f\" by zakończyć", True, "Black")
+finish_it_rect = finish_it.get_rect(center=(320,175))
 # Instructions
 instruction = smaller_main_font.render("Domyślny czas to zawsze 40/20 minut", True, "Black")
 instruction1 = smaller_main_font.render("Zmiana w ustawieniach od razu się zapisuje", True, "Black")
@@ -50,6 +52,9 @@ how_to_change = smaller_main_font.render("Nawiguj strzałkami!", True, "Black")
 how_to_change_rect = how_to_change.get_rect(center = (320, 25))
 #ringtones
 ringtone = pygame.mixer.Sound("./ringtones/nokia.mp3")
+#stats
+spent_studying = 0
+spent_breaking = 0
 
 
 while True:
@@ -80,15 +85,23 @@ while True:
                 what_timer +=1
                 if what_timer % 2 == 1:
                     sessions +=1
+                    spent_studying = spent_studying + set_session_time + (-int(timedown))
                 else:
                     breaks += 1
+                    spent_breaking = spent_breaking + set_break_time + (-int(timedown))
                 session_time = set_session_time
                 break_time = set_break_time 
                 starttime = timeit.default_timer()
         elif event.type == pygame.KEYDOWN and app_phase == "Pause":
             if event.key == pygame.K_s:
                 app_phase = "Timer"
-        elif event.type == pygame.KEYDOWN and app_phase == "Instructions":
+            elif event.key == pygame.K_f:
+                app_phase = "Finish"
+
+                #tutaj dodać to, żeby dodać nieskończony czas do czasu nauki bądź prxerwy
+                #i to, że jeśli ponad połowa sesji była wykorzystana to się dodaje też może
+
+        elif event.type == pygame.KEYDOWN and app_phase in ["Instructions", "Finish"]:
             if event.key == pygame.K_m:
                 app_phase = "Menu"
         elif event.type == pygame.KEYDOWN and app_phase == "Settings":
@@ -129,8 +142,10 @@ while True:
         screen.blit(session_counter, session_counter.get_rect(center = (320, 250)))
         screen.blit(press_space, press_space_rect)
         if 0 > timedown > -0.2: ringtone.play(loops = 1)
+        print(spent_studying, spent_breaking)
     elif app_phase == "Pause":
         screen.blit(start_back, app_name_rect)
+        screen.blit(finish_it, finish_it_rect)
         starttime = timeit.default_timer()
         if what_timer % 2 == 0:
             session_time = timedown
@@ -150,6 +165,10 @@ while True:
         screen.blit(instruction1, (10,100))
         screen.blit(instruction2, (10,150))
         screen.blit(instruction3, (10,200))
+        screen.blit(instruction4, (175,300))
+    elif app_phase == "Finish":
+        screen.blit(instruction4, (175,300))
+
         screen.blit(instruction4, (175,300))
     pygame.display.update()
     clock.tick(5)
