@@ -1,5 +1,7 @@
 import pygame, timeit
 from sys import exit
+from matplotlib import pyplot
+from datetime import date
 
 
 pygame.init()
@@ -24,8 +26,8 @@ menu_instr1 = smaller_main_font.render("-Instrukcje", True, "#191970" )
 user_position_menu = 0
 # Timer screen
 what_timer = 0
-set_session_time = 2400
-set_break_time = 1200
+set_session_time = 10
+set_break_time = 10
 session_time = set_session_time
 break_time = set_break_time
 sessions = 0
@@ -85,10 +87,10 @@ while True:
                 what_timer +=1
                 if what_timer % 2 == 1:
                     sessions +=1
-                    spent_studying = spent_studying + set_session_time + (-int(timedown))
+                    spent_studying += set_session_time + (-int(timedown))
                 else:
                     breaks += 1
-                    spent_breaking = spent_breaking + set_break_time + (-int(timedown))
+                    spent_breaking += set_break_time + (-int(timedown))
                 session_time = set_session_time
                 break_time = set_break_time 
                 starttime = timeit.default_timer()
@@ -96,10 +98,18 @@ while True:
             if event.key == pygame.K_s:
                 app_phase = "Timer"
             elif event.key == pygame.K_f:
+                if what_timer % 2 == 0:
+                    if timedown > 0:
+                        spent_studying += (set_session_time - int(timedown))
+                    else:
+                        spent_studying += set_session_time + (-int(timedown))
+                elif what_timer % 2 == 1:
+                    if timedown > 0:
+                        spent_breaking += (set_break_time - int(timedown))
+                    else:
+                        spent_breaking += set_break_time + (-int(timedown))
                 app_phase = "Finish"
-
-                #tutaj dodać to, żeby dodać nieskończony czas do czasu nauki bądź prxerwy
-                #i to, że jeśli ponad połowa sesji była wykorzystana to się dodaje też może
+                print(spent_studying, spent_breaking)
 
         elif event.type == pygame.KEYDOWN and app_phase in ["Instructions", "Finish"]:
             if event.key == pygame.K_m:
@@ -168,7 +178,9 @@ while True:
         screen.blit(instruction4, (175,300))
     elif app_phase == "Finish":
         screen.blit(instruction4, (175,300))
-
         screen.blit(instruction4, (175,300))
+        what_timer = 0
+        f = open("./stats.txt", "w")
+        f.write(f"{date.today()}, Sesje: {sessions} Przerwy: {breaks}, Czas nauki: {int((spent_studying)/60)}:{(int(spent_studying) % 60)} Czas przerwy: {int((spent_breaking)/60)}:{(int(spent_breaking) % 60)}")
     pygame.display.update()
     clock.tick(5)
