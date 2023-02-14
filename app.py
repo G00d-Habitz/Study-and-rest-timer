@@ -1,6 +1,6 @@
 import pygame, timeit
 from sys import exit
-from matplotlib import pyplot
+from matplotlib import pyplot as plt
 from datetime import date
 
 
@@ -26,11 +26,11 @@ menu_instr1 = smaller_main_font.render("-Instrukcje", True, "#191970" )
 user_position_menu = 0
 # Timer screen
 what_timer = 0
-set_session_time = 10
-set_break_time = 10
+set_session_time = 2400
+set_break_time = 1200
 session_time = set_session_time
 break_time = set_break_time
-sessions = 0
+sessions = 1
 breaks = 0
 press_space = smaller_main_font.render("Wciśnij: \"p\" = pauza, \"spacja\" = kolejna tura", True, "Black")
 press_space_rect = press_space.get_rect(center = (320, 320))
@@ -54,6 +54,7 @@ how_to_change = smaller_main_font.render("Nawiguj strzałkami!", True, "Black")
 how_to_change_rect = how_to_change.get_rect(center = (320, 25))
 #ringtones
 ringtone = pygame.mixer.Sound("./ringtones/nokia.mp3")
+ringtone.set_volume(0.1)
 #stats
 spent_studying = 0
 spent_breaking = 0
@@ -86,10 +87,10 @@ while True:
             elif event.key == pygame.K_SPACE and timedown < 0:
                 what_timer +=1
                 if what_timer % 2 == 1:
-                    sessions +=1
+                    breaks +=1
                     spent_studying += set_session_time + (-int(timedown))
                 else:
-                    breaks += 1
+                    sessions += 1
                     spent_breaking += set_break_time + (-int(timedown))
                 session_time = set_session_time
                 break_time = set_break_time 
@@ -109,7 +110,14 @@ while True:
                     else:
                         spent_breaking += set_break_time + (-int(timedown))
                 app_phase = "Finish"
-                print(spent_studying, spent_breaking)
+                stat_names = ["Sesje","Przerwy","Czas nauki","Czas przerwy"]
+                stat_data = [sessions, breaks, spent_studying/3600, spent_breaking/3600]
+                fig,ax = plt.subplots()
+                ax.bar(stat_names,stat_data)
+                plt.show()
+                f = open("./stats.txt", "a+")
+                f.write(f"{date.today()}, Sesje: {sessions} Przerwy: {breaks}, Czas nauki: {int((spent_studying)/60)}:{(int(spent_studying) % 60)} Czas przerwy: {int((spent_breaking)/60)}:{(int(spent_breaking) % 60)}\n")
+        
 
         elif event.type == pygame.KEYDOWN and app_phase in ["Instructions", "Finish"]:
             if event.key == pygame.K_m:
@@ -152,7 +160,6 @@ while True:
         screen.blit(session_counter, session_counter.get_rect(center = (320, 250)))
         screen.blit(press_space, press_space_rect)
         if 0 > timedown > -0.2: ringtone.play(loops = 1)
-        print(spent_studying, spent_breaking)
     elif app_phase == "Pause":
         screen.blit(start_back, app_name_rect)
         screen.blit(finish_it, finish_it_rect)
@@ -178,9 +185,6 @@ while True:
         screen.blit(instruction4, (175,300))
     elif app_phase == "Finish":
         screen.blit(instruction4, (175,300))
-        screen.blit(instruction4, (175,300))
         what_timer = 0
-        f = open("./stats.txt", "w")
-        f.write(f"{date.today()}, Sesje: {sessions} Przerwy: {breaks}, Czas nauki: {int((spent_studying)/60)}:{(int(spent_studying) % 60)} Czas przerwy: {int((spent_breaking)/60)}:{(int(spent_breaking) % 60)}")
     pygame.display.update()
     clock.tick(5)
